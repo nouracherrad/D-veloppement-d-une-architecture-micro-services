@@ -294,3 +294,136 @@ public class ProductItem {
 
 
 
+
+
+
+
+
+
+
+# Création du service de configuration  
+
+### 1. Repository de Configuration Git
+**URL :** `https://github.com/nouracherrad/config-ecom-app`
+
+**Fichiers créés :**
+```
+config-ecom-app/
+├── application.properties           (Configuration globale)
+├── billing-service.properties       (Configuration spécifique billing)
+├── customer-service.properties      (Configuration spécifique customer)  
+├── inventory-service.properties     (Configuration spécifique inventory)
+├── billing-service-dev.properties   (Configuration dev billing)
+├── billing-service-prod.properties  (Configuration prod billing)
+├── customer-service-dev.properties  (Configuration dev customer)
+├── customer-service-prod.properties (Configuration prod customer)
+├── inventory-service-dev.properties (Configuration dev inventory)
+└── inventory-service-prod.properties (Configuration prod inventory)
+```
+
+### 2. Microservice Config-Service
+
+**Structure :**
+```
+config-service/
+├── src/main/java/org/sdia/configservice/
+│   └── ConfigServiceApplication.java
+└── src/main/resources/
+    └── application.properties
+```
+
+**Configuration principale :** `config-service/src/main/resources/application.properties`
+```properties
+spring.application.name=config-service
+server.port=9999
+spring.cloud.config.server.git.uri=https://github.com/nouracherrad/config-ecom-app
+```
+
+**Code Java :** `ConfigServiceApplication.java`
+```java
+package org.sdia.configservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.config.server.EnableConfigServer;
+
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServiceApplication.class, args);
+    }
+}
+```
+
+## 🔄 Comment configurer vos microservices clients
+
+
+### Contenu des fichiers de configuration
+
+**Fichier global :** `config-repo/application.properties`
+```properties
+global.params.p1=555
+global.params.p2=777
+spring.h2.console.enabled=true
+spring.cloud.discovery.enabled= true
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+eureka.instance.prefer-ip-address=true
+management.endpoints.web.exposure.exclude=*
+
+```
+
+# Sécurité et actualisation 
+management.endpoints.web.exposure.include=health,info , refresh 
+```
+pour que le configuration sera à jour aprés chaque modification
+
+## 🚀 Démarrage et Test
+
+
+###  Vérifier que le service fonctionne
+```bash
+# dans le navigateur
+ http://localhost:9999/billing-service/default
+
+```
+<img width="1407" height="236" alt="image" src="https://github.com/user-attachments/assets/9bf16f21-77b1-4bec-8d3f-31f0d8100038" />
+
+
+```
+Fetching config from server at : http://localhost:9999
+Located environment: name=billing-service, profiles=[dev]
+```
+<img width="887" height="867" alt="image" src="https://github.com/user-attachments/assets/9b70b24a-54d4-415f-9872-49d049a731cd" />
+
+
+test sur le microservice  : qu'il fonctionne bien
+```
+http://www.localhost:8888/CUSTOMER-SERVICE/api/customers
+```
+
+<img width="897" height="873" alt="image" src="https://github.com/user-attachments/assets/087c6ee1-7d78-473a-a5e4-7f24c9fb181b" />
+
+##  Endpoints du Config Service
+
+
+**Exemples :**
+```
+http://localhost:9999/billing-service/dev
+http://localhost:9999/customer-service/prod
+http://localhost:9999/inventory-service/dev
+http://localhost:9999/application/default
+```
+
+
+##  Avantages Obtenus
+
+-  **Configuration centralisée** : Tous les paramètres au même endroit
+-  **Versioning** : Historique complet via Git
+-  **Environnements multiples** : Dev, Prod, Test
+-  **Déploiement flexible** : Changement de config sans rebuild
+-  **Sécurité** : Configuration sensible externalisée
+-  **Consistance** : Tous les services utilisent la même source
+
+
+
